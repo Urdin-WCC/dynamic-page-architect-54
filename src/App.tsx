@@ -14,6 +14,7 @@ import ContentManager from '@/pages/admin/ContentManager';
 import ThemeSettings from '@/pages/admin/ThemeSettings';
 import SecuritySettings from '@/pages/admin/SecuritySettings';
 import Login from '@/pages/admin/Login';
+import Register from '@/pages/admin/Register';
 import NotFound from '@/pages/NotFound';
 import BlogEditor from '@/pages/admin/BlogEditor';
 import PortfolioEditor from '@/pages/admin/PortfolioEditor';
@@ -28,6 +29,10 @@ function App() {
       <Route path="/portfolio" element={<Portfolio />} />
       <Route path="/contact" element={<Contact />} />
       
+      {/* Auth Routes */}
+      <Route path="/admin/login" element={<Login />} />
+      <Route path="/admin/register" element={<Register />} />
+      
       {/* Admin Routes */}
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<Dashboard />} />
@@ -40,7 +45,6 @@ function App() {
         <Route path="content" element={<ContentManager />} />
         <Route path="theme" element={<ThemeSettings />} />
         <Route path="security" element={<SecuritySettings />} />
-        <Route path="login" element={<Login />} />
       </Route>
       
       <Route path="*" element={<NotFound />} />

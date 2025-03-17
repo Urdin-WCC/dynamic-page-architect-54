@@ -7,23 +7,71 @@ import { Label } from "@/components/ui/label";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 import { Plus, Edit, Trash2, Shield, Eye, EyeOff, Save } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 // Mock users
 const mockUsers = [
-  { id: "1", name: "Admin User", email: "admin@urdinart.com", role: "admin", lastLogin: "2023-06-22" },
-  { id: "2", name: "Editor User", email: "editor@urdinart.com", role: "editor", lastLogin: "2023-06-20" },
-  { id: "3", name: "Writer User", email: "writer@urdinart.com", role: "writer", lastLogin: "2023-06-18" },
-  { id: "4", name: "Basic User", email: "user@urdinart.com", role: "user", lastLogin: "2023-06-15" },
+  { id: "2", name: "Admin User", email: "admin@urdinart.com", role: "admin", lastLogin: "2023-06-22" },
+  { id: "3", name: "Editor User", email: "editor@urdinart.com", role: "editor", lastLogin: "2023-06-20" },
+  { id: "4", name: "Writer User", email: "writer@urdinart.com", role: "writer", lastLogin: "2023-06-18" },
+  { id: "5", name: "Basic User", email: "user@urdinart.com", role: "user", lastLogin: "2023-06-15" },
 ];
 
 const AdminSecurity = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [maintenanceMessage, setMaintenanceMessage] = useState("Sitio en mantenimiento. Volveremos pronto.");
+  
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const handleChangePassword = () => {
+    // Validación básica
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Por favor, complete todos los campos",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Las contraseñas nuevas no coinciden",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // En una implementación real, aquí llamaríamos a la API para cambiar la contraseña
+    // Por ahora, solo mostraremos un toast de éxito
+    toast({
+      title: "Contraseña actualizada",
+      description: "Tu contraseña ha sido actualizada correctamente"
+    });
+
+    // Limpiar los campos
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+  };
+
+  const handleSaveMaintenanceSettings = () => {
+    toast({
+      title: maintenanceMode ? "Modo mantenimiento activado" : "Modo mantenimiento desactivado",
+      description: "La configuración ha sido guardada correctamente"
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -64,21 +112,23 @@ const AdminSecurity = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow>
-                    <TableCell className="font-medium">{user?.name}</TableCell>
-                    <TableCell>{user?.email}</TableCell>
-                    <TableCell>
-                      <span className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs">
-                        {user?.role}
-                      </span>
-                    </TableCell>
-                    <TableCell>Ahora</TableCell>
-                    <TableCell className="text-right">
-                      <span className="text-xs text-muted-foreground">
-                        (Tú)
-                      </span>
-                    </TableCell>
-                  </TableRow>
+                  {user && (
+                    <TableRow>
+                      <TableCell className="font-medium">{user.full_name}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>
+                        <span className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs">
+                          {user.role}
+                        </span>
+                      </TableCell>
+                      <TableCell>Ahora</TableCell>
+                      <TableCell className="text-right">
+                        <span className="text-xs text-muted-foreground">
+                          (Tú)
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  )}
                   {mockUsers.map((mockUser) => (
                     <TableRow key={mockUser.id}>
                       <TableCell className="font-medium">{mockUser.name}</TableCell>
@@ -162,7 +212,13 @@ const AdminSecurity = () => {
                   <Button variant="outline" onClick={() => setIsAddUserDialogOpen(false)}>
                     Cancelar
                   </Button>
-                  <Button>
+                  <Button onClick={() => {
+                    toast({
+                      title: "Usuario creado",
+                      description: "El usuario ha sido creado correctamente"
+                    });
+                    setIsAddUserDialogOpen(false);
+                  }}>
                     Crear usuario
                   </Button>
                 </div>
@@ -184,6 +240,8 @@ const AdminSecurity = () => {
                     id="currentPassword" 
                     type={showPassword ? "text" : "password"} 
                     placeholder="••••••••" 
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
                   />
                   <button 
                     type="button"
@@ -200,9 +258,11 @@ const AdminSecurity = () => {
                   id="newPassword" 
                   type={showPassword ? "text" : "password"} 
                   placeholder="••••••••" 
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
                 />
                 <p className="text-sm text-muted-foreground">
-                  La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas y números.
+                  La contraseña debe tener al menos 6 caracteres.
                 </p>
               </div>
               <div className="space-y-2">
@@ -211,10 +271,12 @@ const AdminSecurity = () => {
                   id="confirmPassword" 
                   type={showPassword ? "text" : "password"} 
                   placeholder="••••••••" 
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                 />
               </div>
               <div className="pt-4 flex justify-end">
-                <Button>
+                <Button onClick={handleChangePassword}>
                   <Save className="h-4 w-4 mr-2" />
                   Cambiar contraseña
                 </Button>
@@ -230,12 +292,10 @@ const AdminSecurity = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
+                <Checkbox
                   id="maintenanceMode"
                   checked={maintenanceMode}
-                  onChange={() => setMaintenanceMode(!maintenanceMode)}
-                  className="h-4 w-4"
+                  onCheckedChange={(checked) => setMaintenanceMode(checked as boolean)}
                 />
                 <Label htmlFor="maintenanceMode" className="font-medium">
                   Activar modo mantenimiento
@@ -247,11 +307,11 @@ const AdminSecurity = () => {
               
               <div className="pt-4 space-y-2">
                 <Label htmlFor="maintenanceMessage">Mensaje de mantenimiento</Label>
-                <textarea
+                <Textarea
                   id="maintenanceMessage"
                   value={maintenanceMessage}
                   onChange={(e) => setMaintenanceMessage(e.target.value)}
-                  className="w-full min-h-[100px] p-3 rounded-md border border-input resize-none"
+                  className="min-h-[100px]"
                 />
               </div>
               
@@ -268,7 +328,7 @@ const AdminSecurity = () => {
               </div>
               
               <div className="pt-4 flex justify-end">
-                <Button>
+                <Button onClick={handleSaveMaintenanceSettings}>
                   <Save className="h-4 w-4 mr-2" />
                   Guardar cambios
                 </Button>

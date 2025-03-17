@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -8,54 +8,59 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 
-const Login = () => {
+const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [error, setError] = useState("");
-  const { login, isAuthenticated } = useAuth();
+  const { signup, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
 
-  useEffect(() => {
-    // Si ya está autenticado, redirigir al panel de administración
-    if (isAuthenticated) {
-      navigate("/admin");
-    }
-  }, [isAuthenticated, navigate]);
+  // Si ya está autenticado, redirigir al panel de administración
+  if (isAuthenticated) {
+    navigate("/admin");
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (!email || !password) {
+    if (!email || !password || !confirmPassword || !fullName) {
       setError("Por favor, complete todos los campos");
       return;
     }
 
-    const { success, error: loginError } = await login(email, password);
+    if (password !== confirmPassword) {
+      setError("Las contraseñas no coinciden");
+      return;
+    }
+
+    if (fullName.length < 3) {
+      setError("El nombre debe tener al menos 3 caracteres");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("La contraseña debe tener al menos 6 caracteres");
+      return;
+    }
+
+    const { success, error: signupError } = await signup(email, password, fullName);
     if (!success) {
-      setError(loginError || "Credenciales inválidas");
-    } else {
-      toast({
-        title: "Inicio de sesión exitoso",
-        description: "Bienvenido al panel de administración"
-      });
+      setError(signupError || "Error al registrarse");
     }
   };
-
-  if (isAuthenticated) {
-    return null;
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Panel de Administración</CardTitle>
+          <CardTitle className="text-2xl font-bold">Registro</CardTitle>
           <CardDescription>
-            Ingrese sus credenciales para acceder al panel
+            Crea una cuenta para acceder al panel de administración
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
@@ -67,6 +72,16 @@ const Login = () => {
               </Alert>
             )}
             <div className="space-y-2">
+              <Label htmlFor="fullName">Nombre completo</Label>
+              <Input
+                id="fullName"
+                type="text"
+                placeholder="Tu nombre completo"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="email">Correo electrónico</Label>
               <Input
                 id="email"
@@ -77,9 +92,7 @@ const Login = () => {
               />
             </div>
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Contraseña</Label>
-              </div>
+              <Label htmlFor="password">Contraseña</Label>
               <Input
                 id="password"
                 type="password"
@@ -88,15 +101,25 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+            </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-3">
             <Button type="submit" className="w-full">
-              Iniciar sesión
+              Registrarse
             </Button>
             <div className="text-center text-sm">
-              ¿No tienes una cuenta?{" "}
-              <Link to="/admin/register" className="text-primary hover:underline">
-                Registrarse
+              ¿Ya tienes una cuenta?{" "}
+              <Link to="/admin/login" className="text-primary hover:underline">
+                Iniciar sesión
               </Link>
             </div>
           </CardFooter>
@@ -106,4 +129,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;

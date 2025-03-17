@@ -1,86 +1,161 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { Session, User } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 
 export type UserRole = 'master' | 'admin' | 'editor' | 'writer' | 'user';
 
-interface User {
+interface UserProfile {
   id: string;
   email: string;
-  name: string;
+  full_name: string;
+  avatar_url?: string;
   role: UserRole;
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: UserProfile | null;
+  session: Session | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signup: (email: string, password: string, fullName: string) => Promise<{ success: boolean; error?: string }>;
+  logout: () => Promise<void>;
   isAuthenticated: boolean;
   hasPermission: (requiredRoles: UserRole[]) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Default users
-const DEFAULT_USERS = [
-  {
-    id: '1',
-    email: 'urdin.art@gmail.com',
-    password: '1234.Abcd',
-    name: 'Urdin Art',
-    role: 'master' as UserRole,
-  },
-];
-
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+
+  async function getUserProfile(userId: string): Promise<UserProfile | null> {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, avatar_url, role')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        return null;
+      }
+
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData || !userData.user) return null;
+
+      return {
+        id: data.id,
+        email: userData.user.email || '',
+        full_name: data.full_name || '',
+        avatar_url: data.avatar_url,
+        role: data.role as UserRole,
+      };
+    } catch (error) {
+      console.error('Error getting user profile:', error);
+      return null;
+    }
+  }
 
   useEffect(() => {
     // Check for existing session on load
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
+    async function initialSession() {
+      setLoading(true);
       try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
+        // Get current session
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        setSession(currentSession);
+
+        if (currentSession?.user) {
+          const profile = await getUserProfile(currentSession.user.id);
+          setUser(profile);
+        }
       } catch (error) {
-        console.error('Failed to parse stored user', error);
-        localStorage.removeItem('user');
+        console.error('Error checking auth session:', error);
+      } finally {
+        setLoading(false);
       }
     }
-    setLoading(false);
+
+    initialSession();
+
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+      setSession(newSession);
+
+      if (event === 'SIGNED_IN' && newSession?.user) {
+        setLoading(true);
+        const profile = await getUserProfile(newSession.user.id);
+        setUser(profile);
+        setLoading(false);
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+      } else if (event === 'USER_UPDATED' && newSession?.user) {
+        // If user profile is updated, refresh the user data
+        setLoading(true);
+        const profile = await getUserProfile(newSession.user.id);
+        setUser(profile);
+        setLoading(false);
+      }
+    });
+
+    // Cleanup subscription on unmount
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    setLoading(true);
-    
-    // In a real app, this would be an API call
-    // For now, we'll simulate with the default user
+  const login = async (email: string, password: string) => {
     try {
-      const foundUser = DEFAULT_USERS.find(
-        (u) => u.email === email && u.password === password
-      );
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-      if (foundUser) {
-        const { password, ...userWithoutPassword } = foundUser;
-        setUser(userWithoutPassword);
-        localStorage.setItem('user', JSON.stringify(userWithoutPassword));
-        setLoading(false);
-        return true;
+      if (error) {
+        return { success: false, error: error.message };
       }
-      
-      setLoading(false);
-      return false;
-    } catch (error) {
+
+      return { success: true };
+    } catch (error: any) {
       console.error('Login error:', error);
-      setLoading(false);
-      return false;
+      return { success: false, error: error.message || 'Error al iniciar sesión' };
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
+  const signup = async (email: string, password: string, fullName: string) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+          }
+        }
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error: any) {
+      console.error('Signup error:', error);
+      return { success: false, error: error.message || 'Error al registrarse' };
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const hasPermission = (requiredRoles: UserRole[]): boolean => {
@@ -103,8 +178,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const value = {
     user,
+    session,
     loading,
     login,
+    signup,
     logout,
     isAuthenticated: !!user,
     hasPermission

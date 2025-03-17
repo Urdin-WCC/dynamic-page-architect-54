@@ -1,26 +1,48 @@
 
 import { useState, useEffect } from 'react';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
-import { useAuth, UserRole } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { BookText, LayoutDashboard, LogOut, PanelLeft, Palette, Settings, Shield, Image } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 const AdminLayout = () => {
-  const { isAuthenticated, user, logout, hasPermission } = useAuth();
+  const { isAuthenticated, user, logout, hasPermission, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    // Redirigir si no está autenticado
+    if (!loading && !isAuthenticated) {
       navigate('/admin/login');
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, loading]);
 
+  // Mientras verifica la autenticación, mostrar un indicador de carga
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+      </div>
+    );
+  }
+
+  // Si no está autenticado después de cargar, no mostrar nada (ya redirigirá)
   if (!isAuthenticated) {
     return null;
   }
+
+  const handleLogout = async () => {
+    await logout();
+    toast({
+      title: "Sesión cerrada",
+      description: "Has cerrado sesión correctamente"
+    });
+    navigate('/admin/login');
+  };
 
   const navItems = [
     { 
@@ -28,37 +50,37 @@ const AdminLayout = () => {
       href: '/admin', 
       icon: <LayoutDashboard size={20} />,
       exact: true,
-      roles: ['master', 'admin', 'editor', 'writer'] as UserRole[]
+      roles: ['master', 'admin', 'editor', 'writer'] 
     },
     { 
       name: 'Blog', 
       href: '/admin/blog', 
       icon: <BookText size={20} />,
-      roles: ['master', 'admin', 'editor', 'writer'] as UserRole[]
+      roles: ['master', 'admin', 'editor', 'writer'] 
     },
     { 
       name: 'Portafolio', 
       href: '/admin/portfolio', 
       icon: <Image size={20} />,
-      roles: ['master', 'admin', 'editor', 'writer'] as UserRole[]
+      roles: ['master', 'admin', 'editor', 'writer'] 
     },
     { 
       name: 'Contenido', 
       href: '/admin/content', 
       icon: <PanelLeft size={20} />,
-      roles: ['master', 'admin', 'editor'] as UserRole[]
+      roles: ['master', 'admin', 'editor'] 
     },
     { 
       name: 'Tema y Ajustes', 
       href: '/admin/theme', 
       icon: <Palette size={20} />,
-      roles: ['master', 'admin'] as UserRole[]
+      roles: ['master', 'admin'] 
     },
     { 
       name: 'Seguridad', 
       href: '/admin/security', 
       icon: <Shield size={20} />,
-      roles: ['master', 'admin'] as UserRole[]
+      roles: ['master', 'admin'] 
     }
   ];
 
@@ -84,9 +106,9 @@ const AdminLayout = () => {
           
           <div className="flex items-center gap-4">
             <span className="text-sm mr-2">
-              {user?.name} <span className="text-muted-foreground">({user?.role})</span>
+              {user?.full_name} <span className="text-muted-foreground">({user?.role})</span>
             </span>
-            <Button variant="ghost" size="icon" onClick={() => logout()} title="Cerrar sesión">
+            <Button variant="ghost" size="icon" onClick={handleLogout} title="Cerrar sesión">
               <LogOut size={18} />
             </Button>
           </div>
