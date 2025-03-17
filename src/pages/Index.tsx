@@ -1,135 +1,90 @@
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import PageLayout from "@/components/layout/PageLayout";
-import { ArrowRight, Briefcase, Code, LineChart, MessageSquare, Users } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
-  const features = [
-    {
-      icon: <Code className="h-10 w-10 text-primary" />,
-      title: "Diseño Web",
-      description: "Diseño de páginas web modernas y atractivas para su negocio o proyecto personal.",
-    },
-    {
-      icon: <LineChart className="h-10 w-10 text-primary" />,
-      title: "Marketing Digital",
-      description: "Estrategias de marketing digital para aumentar la visibilidad de su marca en internet.",
-    },
-    {
-      icon: <Briefcase className="h-10 w-10 text-primary" />,
-      title: "Consultoría",
-      description: "Asesoramiento profesional para mejorar su presencia online y aumentar conversiones.",
-    },
-    {
-      icon: <MessageSquare className="h-10 w-10 text-primary" />,
-      title: "Soporte",
-      description: "Soporte técnico continuo para garantizar el correcto funcionamiento de su sitio web.",
-    },
-  ];
-
   return (
-    <PageLayout>
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       {/* Hero Section */}
-      <section className="py-20">
-        <div className="container">
-          <div className="flex flex-col items-center text-center gap-8">
-            <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
-              Soluciones digitales <span className="text-primary">creativas</span>
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl">
-              Diseño web moderno y desarrollo para empresas que buscan destacar en la era digital.
-              Creamos experiencias únicas que conectan con su audiencia.
-            </p>
-            <div className="flex flex-wrap gap-4 justify-center">
-              <Button size="lg" asChild>
-                <Link to="/servicios">Nuestros Servicios</Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link to="/contacto">Contactar</Link>
-              </Button>
-            </div>
+      <section className="container py-20 md:py-32">
+        <div className="max-w-3xl mx-auto text-center space-y-6">
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight">
+            Urdin Art Studio
+          </h1>
+          <p className="text-xl text-muted-foreground">
+            Creamos experiencias digitales inolvidables con un enfoque en el arte y la innovación
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+            <Button asChild size="lg">
+              <Link to="/portfolio">Ver Portafolio</Link>
+            </Button>
+            <Button asChild variant="outline" size="lg">
+              <Link to="/blog">Leer Blog</Link>
+            </Button>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 bg-muted/50">
-        <div className="container">
-          <div className="text-center mb-16">
+      {/* Featured Work */}
+      <section className="container py-20 space-y-12">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold mb-4">Trabajos Destacados</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Exploramos nuevas formas de comunicar a través del diseño y la tecnología
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {[1, 2, 3].map((item) => (
+            <div key={item} className="group relative overflow-hidden rounded-lg">
+              <div className="h-72 bg-muted/50 flex items-center justify-center">
+                <span className="text-3xl font-bold text-muted-foreground/30">Proyecto {item}</span>
+              </div>
+              <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button variant="outline" className="text-white border-white">Ver detalles</Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Services */}
+      <section className="bg-muted/30 py-20">
+        <div className="container space-y-12">
+          <div className="text-center">
             <h2 className="text-3xl font-bold mb-4">Nuestros Servicios</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Ofrecemos soluciones completas para su presencia digital
+              Ofrecemos soluciones completas adaptadas a sus necesidades
             </p>
           </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <Card key={index} className="border-none shadow-md hover:shadow-lg transition-shadow">
-                <CardHeader className="pb-2">
-                  <div className="mb-2">{feature.icon}</div>
-                  <CardTitle>{feature.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-foreground/70">
-                    {feature.description}
-                  </CardDescription>
-                </CardContent>
-              </Card>
+            {[
+              { title: "Diseño Web", description: "Sitios web modernos y atractivos" },
+              { title: "Diseño Gráfico", description: "Identidad visual y branding" },
+              { title: "Desarrollo Frontend", description: "Interfaces interactivas y responsivas" },
+              { title: "Marketing Digital", description: "Estrategias para aumentar su visibilidad" }
+            ].map((service, idx) => (
+              <div key={idx} className="p-6 bg-background rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                <h3 className="text-xl font-medium mb-2">{service.title}</h3>
+                <p className="text-muted-foreground">{service.description}</p>
+              </div>
             ))}
           </div>
-          <div className="mt-12 text-center">
-            <Button variant="outline" asChild>
-              <Link to="/servicios" className="group">
-                Ver todos los servicios
-                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </Button>
-          </div>
         </div>
       </section>
 
-      {/* About Preview Section */}
-      <section className="py-20">
-        <div className="container">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl font-bold mb-6">Sobre Urdin Art</h2>
-              <p className="text-muted-foreground mb-6">
-                Somos un equipo de profesionales apasionados por el diseño web y el marketing digital. 
-                Nuestra misión es ayudar a empresas y emprendedores a destacar en el mundo digital con 
-                soluciones creativas y efectivas.
-              </p>
-              <p className="text-muted-foreground mb-6">
-                Con años de experiencia en el sector, hemos trabajado con clientes de diversos tamaños 
-                y sectores, adaptando nuestras soluciones a sus necesidades específicas.
-              </p>
-              <Button asChild>
-                <Link to="/about">Conocer más</Link>
-              </Button>
-            </div>
-            <div className="bg-muted rounded-lg h-80 flex items-center justify-center">
-              <Users size={120} className="text-muted-foreground/30" />
-            </div>
-          </div>
+      {/* CTA */}
+      <section className="container py-20">
+        <div className="bg-primary text-primary-foreground rounded-xl p-8 md:p-12 text-center">
+          <h2 className="text-3xl font-bold mb-4">¿Listo para comenzar su proyecto?</h2>
+          <p className="mb-6 max-w-lg mx-auto">
+            Contáctenos hoy mismo para discutir sus ideas y cómo podemos ayudarle a llevarlas a cabo.
+          </p>
+          <Button variant="secondary" size="lg">Contactar</Button>
         </div>
       </section>
-
-      {/* CTA Section */}
-      <section className="py-16 bg-primary text-primary-foreground">
-        <div className="container">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold mb-6">¿Listo para dar el siguiente paso?</h2>
-            <p className="text-xl opacity-90 mb-8 max-w-2xl mx-auto">
-              Contáctanos hoy mismo para discutir cómo podemos ayudarte a alcanzar tus objetivos digitales.
-            </p>
-            <Button size="lg" variant="secondary" asChild>
-              <Link to="/contacto">Contactar ahora</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-    </PageLayout>
+    </div>
   );
 };
 

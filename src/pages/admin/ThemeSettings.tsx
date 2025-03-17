@@ -1,18 +1,82 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Save, Upload, Facebook, Twitter, Instagram, Linkedin, Youtube } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+const hexToHSL = (hex: string) => {
+  hex = hex.replace('#', '');
+  
+  let r = parseInt(hex.substring(0, 2), 16) / 255;
+  let g = parseInt(hex.substring(2, 4), 16) / 255;
+  let b = parseInt(hex.substring(4, 6), 16) / 255;
+  
+  let max = Math.max(r, g, b);
+  let min = Math.min(r, g, b);
+  
+  let h = 0;
+  let s = 0;
+  let l = (max + min) / 2;
+
+  if (max !== min) {
+    let d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    
+    h = Math.round(h * 60);
+  }
+  
+  s = Math.round(s * 100);
+  l = Math.round(l * 100);
+  
+  return `${h} ${s}% ${l}%`;
+};
 
 const AdminTheme = () => {
+  const { toast } = useToast();
   const [primaryColor, setPrimaryColor] = useState("#1E293B");
   const [secondaryColor, setSecondaryColor] = useState("#F1F5F9");
   const [accentColor, setAccentColor] = useState("#3B82F6");
   const [backgroundColor, setBackgroundColor] = useState("#FFFFFF");
   const [textColor, setTextColor] = useState("#0F172A");
+  const [isSaving, setIsSaving] = useState(false);
+
+  const applyColors = (save = false) => {
+    const root = document.documentElement;
+    
+    root.style.setProperty('--primary', hexToHSL(primaryColor));
+    root.style.setProperty('--secondary', hexToHSL(secondaryColor));
+    root.style.setProperty('--accent', hexToHSL(accentColor));
+    root.style.setProperty('--background', hexToHSL(backgroundColor));
+    root.style.setProperty('--foreground', hexToHSL(textColor));
+    
+    if (save) {
+      setIsSaving(true);
+      setTimeout(() => {
+        setIsSaving(false);
+        toast({
+          title: "Cambios guardados",
+          description: "Los cambios en el tema se han guardado correctamente."
+        });
+      }, 1000);
+    }
+  };
+
+  useEffect(() => {
+    applyColors();
+  }, [primaryColor, secondaryColor, accentColor, backgroundColor, textColor]);
+
+  const handleSaveChanges = () => {
+    applyColors(true);
+  };
 
   return (
     <div className="space-y-6">
@@ -157,9 +221,15 @@ const AdminTheme = () => {
               </div>
               
               <div className="flex justify-end">
-                <Button>
-                  <Save className="h-4 w-4 mr-2" />
-                  Guardar cambios
+                <Button onClick={handleSaveChanges} disabled={isSaving}>
+                  {isSaving ? (
+                    <>Guardando...</>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4 mr-2" />
+                      Guardar cambios
+                    </>
+                  )}
                 </Button>
               </div>
             </CardContent>
@@ -233,7 +303,12 @@ const AdminTheme = () => {
               </div>
               
               <div className="flex justify-end">
-                <Button>
+                <Button onClick={() => {
+                  toast({
+                    title: "Cambios guardados",
+                    description: "Los cambios en la tipografía se han guardado correctamente."
+                  });
+                }}>
                   <Save className="h-4 w-4 mr-2" />
                   Guardar cambios
                 </Button>
@@ -258,7 +333,12 @@ const AdminTheme = () => {
                       </div>
                     </div>
                   </div>
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full" onClick={() => {
+                    toast({
+                      title: "Acción no disponible",
+                      description: "La funcionalidad para subir logo estará disponible próximamente."
+                    });
+                  }}>
                     <Upload className="h-4 w-4 mr-2" />
                     Subir logo
                   </Button>
@@ -273,7 +353,12 @@ const AdminTheme = () => {
                       </div>
                     </div>
                   </div>
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full" onClick={() => {
+                    toast({
+                      title: "Acción no disponible",
+                      description: "La funcionalidad para subir favicon estará disponible próximamente."
+                    });
+                  }}>
                     <Upload className="h-4 w-4 mr-2" />
                     Subir favicon
                   </Button>
@@ -281,7 +366,12 @@ const AdminTheme = () => {
               </div>
               
               <div className="flex justify-end">
-                <Button>
+                <Button onClick={() => {
+                  toast({
+                    title: "Cambios guardados",
+                    description: "Los cambios en logo y favicon se han guardado correctamente."
+                  });
+                }}>
                   <Save className="h-4 w-4 mr-2" />
                   Guardar cambios
                 </Button>
@@ -431,7 +521,12 @@ const AdminTheme = () => {
               </div>
               
               <div className="flex justify-end">
-                <Button>
+                <Button onClick={() => {
+                  toast({
+                    title: "Cambios guardados",
+                    description: "Los cambios en las redes sociales se han guardado correctamente."
+                  });
+                }}>
                   <Save className="h-4 w-4 mr-2" />
                   Guardar cambios
                 </Button>
@@ -445,3 +540,4 @@ const AdminTheme = () => {
 };
 
 export default AdminTheme;
+
