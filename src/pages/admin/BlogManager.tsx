@@ -7,6 +7,8 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Plus, Edit, Trash2, MessageSquare } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 // Mock data
 const mockPosts = [
@@ -17,6 +19,7 @@ const mockPosts = [
     createdAt: "2023-05-12",
     status: "published",
     comments: 5,
+    image: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d",
   },
   {
     id: "2",
@@ -25,6 +28,7 @@ const mockPosts = [
     createdAt: "2023-05-05", 
     status: "published",
     comments: 3,
+    image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6",
   },
   {
     id: "3",
@@ -33,13 +37,16 @@ const mockPosts = [
     createdAt: "2023-04-28",
     status: "draft",
     comments: 0,
+    image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158",
   },
 ];
 
 const AdminBlog = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTab, setSelectedTab] = useState("all");
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [postToDelete, setPostToDelete] = useState<string | null>(null);
   
   // Filter posts based on search query and selected tab
   const filteredPosts = mockPosts.filter(post => {
@@ -53,6 +60,24 @@ const AdminBlog = () => {
     return matchesSearch;
   });
 
+  const handleEdit = (id: string) => {
+    navigate(`/admin/blog/edit/${id}`);
+  };
+
+  const handleDelete = (id: string) => {
+    setPostToDelete(id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (postToDelete) {
+      // En un caso real, aquí harías una llamada a API para eliminar
+      toast.success("Publicación eliminada correctamente");
+      setIsDeleteDialogOpen(false);
+      setPostToDelete(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -62,7 +87,7 @@ const AdminBlog = () => {
             Administra las publicaciones de tu blog
           </p>
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
+        <Button onClick={() => navigate("/admin/blog/new")}>
           <Plus className="h-4 w-4 mr-2" />
           Nueva publicación
         </Button>
@@ -94,6 +119,7 @@ const AdminBlog = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Imagen</TableHead>
                   <TableHead>Título</TableHead>
                   <TableHead className="hidden md:table-cell">Extracto</TableHead>
                   <TableHead>Fecha</TableHead>
@@ -104,6 +130,17 @@ const AdminBlog = () => {
               <TableBody>
                 {filteredPosts.map((post) => (
                   <TableRow key={post.id}>
+                    <TableCell>
+                      <div className="h-10 w-16 bg-muted rounded overflow-hidden">
+                        {post.image && (
+                          <img 
+                            src={post.image} 
+                            alt={post.title} 
+                            className="h-full w-full object-cover"
+                          />
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell className="font-medium">{post.title}</TableCell>
                     <TableCell className="hidden md:table-cell">{post.excerpt.substring(0, 60)}...</TableCell>
                     <TableCell>{post.createdAt}</TableCell>
@@ -116,7 +153,12 @@ const AdminBlog = () => {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon" title="Editar">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          title="Editar"
+                          onClick={() => handleEdit(post.id)}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
                         {post.comments > 0 && (
@@ -127,7 +169,12 @@ const AdminBlog = () => {
                             </span>
                           </Button>
                         )}
-                        <Button variant="ghost" size="icon" title="Eliminar">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          title="Eliminar"
+                          onClick={() => handleDelete(post.id)}
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -144,47 +191,22 @@ const AdminBlog = () => {
         </CardContent>
       </Card>
 
-      {/* Create Post Dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="max-w-3xl">
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>Nueva publicación</DialogTitle>
+            <DialogTitle>Confirmar eliminación</DialogTitle>
             <DialogDescription>
-              Crea una nueva publicación para tu blog
+              ¿Estás seguro de que deseas eliminar esta publicación? Esta acción no se puede deshacer.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <label htmlFor="title" className="text-sm font-medium">Título</label>
-              <Input id="title" placeholder="Título de la publicación" />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="excerpt" className="text-sm font-medium">Extracto</label>
-              <textarea 
-                id="excerpt" 
-                className="w-full min-h-20 p-3 rounded-md border border-input resize-none"
-                placeholder="Breve descripción de la publicación..."
-              ></textarea>
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="content" className="text-sm font-medium">Contenido</label>
-              <textarea 
-                id="content" 
-                className="w-full min-h-40 p-3 rounded-md border border-input resize-none"
-                placeholder="Contenido de la publicación..."
-              ></textarea>
-            </div>
-            <div className="pt-4 flex justify-end gap-4">
-              <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                Cancelar
-              </Button>
-              <Button>
-                Guardar como borrador
-              </Button>
-              <Button>
-                Publicar
-              </Button>
-            </div>
+          <div className="flex justify-end gap-4 pt-4">
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete}>
+              Eliminar
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

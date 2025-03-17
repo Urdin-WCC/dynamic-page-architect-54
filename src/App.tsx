@@ -1,55 +1,50 @@
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Index from '@/pages/Index';
+import Home from '@/pages/Home';
+import Blog from '@/pages/Blog';
+import Portfolio from '@/pages/Portfolio';
+import Contact from '@/pages/Contact';
+import AdminLayout from '@/components/layout/AdminLayout';
+import Dashboard from '@/pages/admin/Dashboard';
+import BlogManager from '@/pages/admin/BlogManager';
+import PortfolioManager from '@/pages/admin/PortfolioManager';
+import ContentManager from '@/pages/admin/ContentManager';
+import ThemeSettings from '@/pages/admin/ThemeSettings';
+import SecuritySettings from '@/pages/admin/SecuritySettings';
+import Login from '@/pages/admin/Login';
+import NotFound from '@/pages/NotFound';
+import BlogEditor from '@/pages/admin/BlogEditor';
+import PortfolioEditor from '@/pages/admin/PortfolioEditor';
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import Blog from "./pages/Blog";
-import Portfolio from "./pages/Portfolio";
-import Login from "./pages/admin/Login";
-import AdminDashboard from "./pages/admin/Dashboard";
-import AdminLayout from "./components/layout/AdminLayout";
-import AdminBlog from "./pages/admin/BlogManager";
-import AdminPortfolio from "./pages/admin/PortfolioManager";
-import AdminContent from "./pages/admin/ContentManager";
-import AdminTheme from "./pages/admin/ThemeSettings";
-import AdminSecurity from "./pages/admin/SecuritySettings";
-import { AuthProvider } from "./contexts/AuthContext";
-
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/portfolio" element={<Portfolio />} />
-            
-            {/* Admin Routes */}
-            <Route path="/admin/login" element={<Login />} />
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="blog" element={<AdminBlog />} />
-              <Route path="portfolio" element={<AdminPortfolio />} />
-              <Route path="content" element={<AdminContent />} />
-              <Route path="theme" element={<AdminTheme />} />
-              <Route path="security" element={<AdminSecurity />} />
-            </Route>
-            
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
-);
+function App() {
+  return (
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/" element={<Index />} />
+      <Route path="/home" element={<Home />} />
+      <Route path="/blog" element={<Blog />} />
+      <Route path="/portfolio" element={<Portfolio />} />
+      <Route path="/contact" element={<Contact />} />
+      
+      {/* Admin Routes */}
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<Dashboard />} />
+        <Route path="blog" element={<BlogManager />} />
+        <Route path="blog/new" element={<BlogEditor />} />
+        <Route path="blog/edit/:id" element={<BlogEditor />} />
+        <Route path="portfolio" element={<PortfolioManager />} />
+        <Route path="portfolio/new" element={<PortfolioEditor />} />
+        <Route path="portfolio/edit/:id" element={<PortfolioEditor />} />
+        <Route path="content" element={<ContentManager />} />
+        <Route path="theme" element={<ThemeSettings />} />
+        <Route path="security" element={<SecuritySettings />} />
+        <Route path="login" element={<Login />} />
+      </Route>
+      
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}
 
 export default App;
