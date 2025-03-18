@@ -19,7 +19,7 @@ const AdminDashboard = () => {
       <div>
         <h1 className="text-2xl font-bold mb-2">Dashboard</h1>
         <p className="text-muted-foreground">
-          Bienvenido, {user?.name}. Aquí podrás gestionar todo el contenido de tu sitio.
+          Bienvenido, {user?.full_name}. Aquí podrás gestionar todo el contenido de tu sitio.
         </p>
       </div>
       

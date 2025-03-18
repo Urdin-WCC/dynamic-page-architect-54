@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { BookText, LayoutDashboard, LogOut, PanelLeft, Palette, Settings, Shield, Image } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -50,37 +50,37 @@ const AdminLayout = () => {
       href: '/admin', 
       icon: <LayoutDashboard size={20} />,
       exact: true,
-      roles: ['master', 'admin', 'editor', 'writer'] 
+      roles: ['master', 'admin', 'editor', 'writer'] as UserRole[]
     },
     { 
       name: 'Blog', 
       href: '/admin/blog', 
       icon: <BookText size={20} />,
-      roles: ['master', 'admin', 'editor', 'writer'] 
+      roles: ['master', 'admin', 'editor', 'writer'] as UserRole[]
     },
     { 
       name: 'Portafolio', 
       href: '/admin/portfolio', 
       icon: <Image size={20} />,
-      roles: ['master', 'admin', 'editor', 'writer'] 
+      roles: ['master', 'admin', 'editor', 'writer'] as UserRole[]
     },
     { 
       name: 'Contenido', 
       href: '/admin/content', 
       icon: <PanelLeft size={20} />,
-      roles: ['master', 'admin', 'editor'] 
+      roles: ['master', 'admin', 'editor'] as UserRole[]
     },
     { 
       name: 'Tema y Ajustes', 
       href: '/admin/theme', 
       icon: <Palette size={20} />,
-      roles: ['master', 'admin'] 
+      roles: ['master', 'admin'] as UserRole[]
     },
     { 
       name: 'Seguridad', 
       href: '/admin/security', 
       icon: <Shield size={20} />,
-      roles: ['master', 'admin'] 
+      roles: ['master', 'admin'] as UserRole[]
     }
   ];
 
