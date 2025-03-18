@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useAuth } from "@/contexts/AuthContext";
 import { LineChart, BarChart, Users, BookOpen, Layout, Image, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -67,13 +68,13 @@ const AdminDashboard = () => {
           <CardDescription>Accede rápidamente a las funciones más utilizadas</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-4">
-          <Link to="/admin/blog">
+          <Link to="/admin/blog/new">
             <Button variant="outline" className="flex gap-2">
               <BookOpen className="h-4 w-4" />
               Crear publicación
             </Button>
           </Link>
-          <Link to="/admin/portfolio">
+          <Link to="/admin/portfolio/new">
             <Button variant="outline" className="flex gap-2">
               <Image className="h-4 w-4" />
               Añadir proyecto
@@ -90,17 +91,5 @@ const AdminDashboard = () => {
     </div>
   );
 };
-
-const Button = ({ children, variant = "default", className = "" }) => {
-  return (
-    <div className={`
-      py-2 px-4 rounded-md
-      ${variant === "outline" ? "border border-input hover:bg-secondary" : "bg-primary text-primary-foreground hover:bg-primary/90"}
-      ${className}
-    `}>
-      {children}
-    </div>
-  )
-}
 
 export default AdminDashboard;

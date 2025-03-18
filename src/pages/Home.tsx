@@ -1,6 +1,6 @@
 
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Briefcase, Code, Globe, PenTool, Search, Server } from 'lucide-react';
 import PageLayout from '@/components/layout/PageLayout';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -18,10 +18,16 @@ const Home = () => {
             <p className="text-xl text-muted-foreground">
               Creamos experiencias digitales atractivas y funcionales que impulsan el crecimiento de tu negocio.
             </p>
-            <div className="pt-4">
+            <div className="pt-4 flex gap-4">
               <Link to="/contact">
                 <Button className="group">
                   Contactar ahora 
+                  <ArrowRight size={16} className="ml-2 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </Link>
+              <Link to="/portfolio">
+                <Button variant="outline" className="group">
+                  Ver portfolio
                   <ArrowRight size={16} className="ml-2 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
@@ -40,6 +46,7 @@ const Home = () => {
               key={index} 
               title={service.title} 
               description={service.description} 
+              icon={service.icon}
               index={index} 
             />
           ))}
@@ -80,6 +87,29 @@ const Home = () => {
         </div>
       </section>
 
+      {/* About Preview */}
+      <section className="py-16 border-t border-border">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-bold mb-6">Sobre Nosotros</h2>
+            <p className="text-muted-foreground mb-6">
+              Somos un estudio de diseño y desarrollo web fundado en 2020, especializado en 
+              crear experiencias digitales excepcionales. Nuestro equipo multidisciplinar 
+              combina creatividad y tecnología para transformar ideas en soluciones digitales efectivas.
+            </p>
+            <Link to="/about">
+              <Button variant="outline" className="group">
+                Conoce nuestro equipo
+                <ArrowRight size={16} className="ml-2 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </Link>
+          </div>
+          <div className="bg-muted rounded-lg flex items-center justify-center h-80">
+            <span className="text-muted-foreground">Imagen del equipo</span>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-16 border-t border-border">
         <div className="bg-secondary rounded-xl p-8 md:p-12 text-center">
@@ -99,7 +129,7 @@ const Home = () => {
   );
 };
 
-const ServiceCard = ({ title, description, index }: { title: string; description: string; index: number }) => {
+const ServiceCard = ({ title, description, icon, index }: { title: string; description: string; icon: React.ReactNode; index: number }) => {
   return (
     <div 
       className={cn(
@@ -108,6 +138,7 @@ const ServiceCard = ({ title, description, index }: { title: string; description
       )}
       style={{ animationDelay: `${index * 100}ms` }}
     >
+      <div className="text-primary mb-4">{icon}</div>
       <h3 className="text-xl font-semibold mb-3">{title}</h3>
       <p className="text-muted-foreground">{description}</p>
     </div>
@@ -139,15 +170,33 @@ const PortfolioCard = ({ title, category, index }: { title: string; category: st
 const services = [
   {
     title: "Diseño Web",
-    description: "Diseños atractivos y funcionales que conectan con tu audiencia y representan tu marca."
+    description: "Diseños atractivos y funcionales que conectan con tu audiencia y representan tu marca.",
+    icon: <Globe size={36} />
   },
   {
     title: "Desarrollo Frontend",
-    description: "Interfaces modernas con animaciones fluidas y experiencia de usuario optimizada."
+    description: "Interfaces modernas con animaciones fluidas y experiencia de usuario optimizada.",
+    icon: <Code size={36} />
+  },
+  {
+    title: "Diseño UX/UI",
+    description: "Experiencias de usuario cuidadosamente diseñadas para maximizar la usabilidad.",
+    icon: <PenTool size={36} />
+  },
+  {
+    title: "Desarrollo Backend",
+    description: "Soluciones robustas que potencian la funcionalidad de tu sitio web.",
+    icon: <Server size={36} />
   },
   {
     title: "SEO & Marketing",
-    description: "Estrategias para mejorar tu visibilidad en los motores de búsqueda y atraer tráfico."
+    description: "Estrategias para mejorar tu visibilidad en los motores de búsqueda y atraer tráfico.",
+    icon: <Search size={36} />
+  },
+  {
+    title: "Consultoría Digital",
+    description: "Asesoramiento estratégico para optimizar tu presencia digital y alcanzar tus objetivos.",
+    icon: <Briefcase size={36} />
   }
 ];
 
@@ -163,6 +212,18 @@ const portfolioItems = [
   {
     title: "App de Gestión",
     category: "Desarrollo"
+  },
+  {
+    title: "Identidad de Marca",
+    category: "Branding"
+  },
+  {
+    title: "Plataforma Educativa",
+    category: "Web App"
+  },
+  {
+    title: "Portal de Noticias",
+    category: "Contenidos"
   }
 ];
 

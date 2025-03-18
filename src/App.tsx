@@ -5,6 +5,8 @@ import Index from '@/pages/Index';
 import Home from '@/pages/Home';
 import Blog from '@/pages/Blog';
 import Portfolio from '@/pages/Portfolio';
+import About from '@/pages/About';
+import Services from '@/pages/Services';
 import Contact from '@/pages/Contact';
 import AdminLayout from '@/components/layout/AdminLayout';
 import Dashboard from '@/pages/admin/Dashboard';
@@ -27,6 +29,8 @@ function App() {
       <Route path="/home" element={<Home />} />
       <Route path="/blog" element={<Blog />} />
       <Route path="/portfolio" element={<Portfolio />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/services" element={<Services />} />
       <Route path="/contact" element={<Contact />} />
       
       {/* Auth Routes */}
