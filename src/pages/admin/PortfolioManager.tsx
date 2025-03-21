@@ -1,16 +1,15 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Plus, Edit, Trash2, Tag } from "lucide-react";
+import { Search, Plus, Edit, Trash2, Tag, Eye } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 
-// Mock data
 const mockProjects = [
   {
     id: "1",
@@ -42,7 +41,6 @@ const mockProjects = [
   },
 ];
 
-// Mock categories
 const mockCategories = [
   { id: "1", name: "Diseño Web" },
   { id: "2", name: "Branding" },
@@ -57,8 +55,8 @@ const AdminPortfolio = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
-  
-  // Filter projects based on search query and selected category
+  const [newCategory, setNewCategory] = useState("");
+
   const filteredProjects = mockProjects.filter(project => {
     const matchesSearch = project.title.toLowerCase().includes(searchQuery.toLowerCase());
     
@@ -70,6 +68,10 @@ const AdminPortfolio = () => {
     navigate(`/admin/portfolio/edit/${id}`);
   };
 
+  const handlePreview = (id: string) => {
+    toast.info("Esta función estará disponible próximamente");
+  };
+
   const handleDelete = (id: string) => {
     setProjectToDelete(id);
     setIsDeleteDialogOpen(true);
@@ -77,10 +79,16 @@ const AdminPortfolio = () => {
 
   const confirmDelete = () => {
     if (projectToDelete) {
-      // En un caso real, aquí harías una llamada a API para eliminar
       toast.success("Proyecto eliminado correctamente");
       setIsDeleteDialogOpen(false);
       setProjectToDelete(null);
+    }
+  };
+
+  const handleAddCategory = () => {
+    if (newCategory.trim()) {
+      toast.success(`Categoría "${newCategory}" añadida correctamente`);
+      setNewCategory("");
     }
   };
 
@@ -156,10 +164,20 @@ const AdminPortfolio = () => {
                       </div>
                     </TableCell>
                     <TableCell className="font-medium">{project.title}</TableCell>
-                    <TableCell>{project.category}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{project.category}</Badge>
+                    </TableCell>
                     <TableCell>{project.date}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          title="Vista previa"
+                          onClick={() => handlePreview(project.id)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
                         <Button 
                           variant="ghost" 
                           size="icon" 
@@ -185,12 +203,19 @@ const AdminPortfolio = () => {
           ) : (
             <div className="text-center py-10">
               <p className="text-muted-foreground">No se encontraron proyectos.</p>
+              <Button 
+                variant="outline" 
+                className="mt-4"
+                onClick={() => navigate("/admin/portfolio/new")}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Crear un proyecto
+              </Button>
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -210,7 +235,6 @@ const AdminPortfolio = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Categories Dialog */}
       <Dialog open={isCategoryDialogOpen} onOpenChange={setIsCategoryDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -222,7 +246,7 @@ const AdminPortfolio = () => {
           <div className="py-4">
             {mockCategories.map((category) => (
               <div key={category.id} className="flex items-center justify-between py-2 border-b">
-                <span>{category.name}</span>
+                <Badge variant="outline">{category.name}</Badge>
                 <div className="flex gap-2">
                   <Button variant="ghost" size="icon">
                     <Edit className="h-4 w-4" />
@@ -234,8 +258,13 @@ const AdminPortfolio = () => {
               </div>
             ))}
             <div className="flex items-center gap-2 mt-4">
-              <Input placeholder="Nueva categoría" />
-              <Button>Añadir</Button>
+              <Input 
+                placeholder="Nueva categoría" 
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAddCategory()}
+              />
+              <Button onClick={handleAddCategory}>Añadir</Button>
             </div>
           </div>
         </DialogContent>

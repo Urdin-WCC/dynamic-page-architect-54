@@ -1,169 +1,160 @@
 
-import { useState } from 'react';
-import { Search } from 'lucide-react';
+import React, { useState } from 'react';
 import PageLayout from '@/components/layout/PageLayout';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { ArrowRightIcon } from 'lucide-react';
 
-const categories = [
-  "Todos",
-  "Diseño Web",
-  "E-commerce",
-  "Branding",
-  "UX/UI"
+// Mock projects data
+const projects = [
+  {
+    id: '1',
+    title: 'Diseño web para restaurante',
+    description: 'Rediseño completo del sitio web para un restaurante local con reservas online y menú digital.',
+    category: 'Diseño Web',
+    date: '2023-06-15',
+    image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    client: 'Restaurante La Buena Mesa',
+  },
+  {
+    id: '2',
+    title: 'Identidad corporativa para startup',
+    description: 'Desarrollo de marca completa incluyendo logo, papelería, guía de estilo y aplicaciones digitales.',
+    category: 'Branding',
+    date: '2023-05-22',
+    image: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    client: 'TechStart Inc.',
+  },
+  {
+    id: '3',
+    title: 'App móvil para tienda online',
+    description: 'Diseño y desarrollo de aplicación móvil para tienda de ropa con carrito de compras y pagos integrados.',
+    category: 'Desarrollo Móvil',
+    date: '2023-04-10',
+    image: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    client: 'ModaExpress',
+  },
+  {
+    id: '4',
+    title: 'Campaña publicitaria para evento',
+    description: 'Diseño de material gráfico para evento cultural incluyendo carteles, flyers y contenido para redes sociales.',
+    category: 'Marketing',
+    date: '2023-03-28',
+    image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    client: 'Festival Cultural Ciudad',
+  },
+  {
+    id: '5',
+    title: 'E-commerce para productos artesanales',
+    description: 'Plataforma de comercio electrónico para artesanos locales con múltiples vendedores y sistema de pagos.',
+    category: 'E-commerce',
+    date: '2023-02-15',
+    image: 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    client: 'Artesanías Unidas',
+  },
+  {
+    id: '6',
+    title: 'Rediseño UX para aplicación bancaria',
+    description: 'Mejora de la experiencia de usuario para aplicación bancaria, simplificando flujos y aumentando conversión.',
+    category: 'UX/UI',
+    date: '2023-01-10',
+    image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    client: 'Banco Nacional',
+  },
 ];
 
+// Unique categories
+const categories = ['Todos', ...Array.from(new Set(projects.map(project => project.category)))];
+
 const Portfolio = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState('Todos');
+  const [selectedCategory, setSelectedCategory] = useState('Todos');
   
-  const filteredProjects = portfolioProjects.filter(project => {
-    const matchesSearch = project.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         project.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = activeCategory === 'Todos' || project.category === activeCategory;
-    
-    return matchesSearch && matchesCategory;
-  });
+  const filteredProjects = selectedCategory === 'Todos' 
+    ? projects 
+    : projects.filter(project => project.category === selectedCategory);
 
   return (
-    <PageLayout showSidebar={false}>
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl md:text-4xl font-bold mb-8">Portafolio</h1>
-        
-        <div className="flex flex-col md:flex-row gap-4 md:items-center justify-between mb-8">
-          {/* Categories */}
-          <div className="flex flex-wrap gap-2">
-            {categories.map((category) => (
-              <Button
-                key={category}
-                variant={activeCategory === category ? "default" : "outline"}
-                size="sm"
-                onClick={() => setActiveCategory(category)}
-                className="transition-all"
-              >
-                {category}
-              </Button>
-            ))}
-          </div>
-          
-          {/* Search Bar */}
-          <div className="relative w-full md:w-64">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              type="text"
-              placeholder="Buscar proyectos..."
-              className="pl-10"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
+    <PageLayout>
+      <div className="container py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold mb-4">Nuestro Portfolio</h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Descubre algunos de nuestros mejores trabajos en diseño, desarrollo y marketing.
+            Cada proyecto refleja nuestra pasión por la creación y la innovación.
+          </p>
         </div>
 
-        {/* Gallery Grid */}
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredProjects.length > 0 ? (
-            filteredProjects.map((project, index) => (
-              <PortfolioCard 
-                key={index}
-                title={project.title}
-                description={project.description}
-                category={project.category}
-                index={index}
-              />
-            ))
-          ) : (
-            <div className="col-span-3 text-center py-16">
-              <p className="text-muted-foreground">No se encontraron proyectos que coincidan con tu búsqueda.</p>
-              <div className="flex justify-center gap-2 mt-4">
-                <Button 
-                  variant="ghost" 
-                  onClick={() => setSearchQuery('')}
+        <Tabs defaultValue="Todos" className="w-full mb-12">
+          <div className="flex justify-center">
+            <TabsList className="grid grid-flow-col auto-cols-max gap-2">
+              {categories.map((category) => (
+                <TabsTrigger 
+                  key={category} 
+                  value={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className="px-4"
                 >
-                  Limpiar búsqueda
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  onClick={() => setActiveCategory('Todos')}
-                >
-                  Ver todas las categorías
-                </Button>
+                  {category}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
+        </Tabs>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredProjects.map((project) => (
+            <Card key={project.id} className="overflow-hidden group">
+              <div className="relative h-56 overflow-hidden">
+                <img
+                  src={project.image}
+                  alt={project.title}
+                  className="w-full h-full object-cover transition-all duration-300 group-hover:scale-105"
+                />
+                <div className="absolute top-3 right-3">
+                  <Badge className="bg-white text-primary hover:bg-gray-100">
+                    {project.category}
+                  </Badge>
+                </div>
               </div>
-            </div>
-          )}
+              <CardContent className="p-5">
+                <h3 className="text-xl font-semibold mb-2">{project.title}</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {project.description}
+                </p>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-muted-foreground">
+                    Cliente: {project.client}
+                  </span>
+                  <Button variant="ghost" size="sm" className="group-hover:text-primary transition-colors">
+                    Ver detalles <ArrowRightIcon className="ml-1 h-4 w-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {filteredProjects.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">No hay proyectos en esta categoría.</p>
+          </div>
+        )}
+
+        <div className="mt-16 text-center">
+          <h2 className="text-2xl font-bold mb-6">¿Listo para comenzar tu proyecto?</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto mb-8">
+            Nos encantaría escuchar tu idea y ayudarte a hacerla realidad. 
+            Contáctanos para una consulta gratuita.
+          </p>
+          <Button size="lg" className="px-8">
+            Contactar ahora
+          </Button>
         </div>
       </div>
     </PageLayout>
   );
 };
-
-const PortfolioCard = ({ 
-  title, 
-  description, 
-  category,
-  index
-}: { 
-  title: string; 
-  description: string; 
-  category: string;
-  index: number;
-}) => {
-  return (
-    <article 
-      className={cn(
-        "group border border-border rounded-lg overflow-hidden bg-card hover:shadow-elevation transition-all",
-        "animate-fade-in-up"
-      )}
-      style={{ animationDelay: `${index * 100}ms` }}
-    >
-      <div className="aspect-square bg-muted flex items-center justify-center relative group-hover:opacity-90 transition-opacity">
-        <span className="text-sm text-muted-foreground">Imagen del proyecto</span>
-        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-          <Button variant="secondary" size="sm">Ver proyecto</Button>
-        </div>
-      </div>
-      <div className="p-4">
-        <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
-          {category}
-        </div>
-        <h2 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">{title}</h2>
-        <p className="text-sm text-muted-foreground">{description}</p>
-      </div>
-    </article>
-  );
-};
-
-const portfolioProjects = [
-  {
-    title: "Portal Corporativo",
-    description: "Rediseño completo del sitio web corporativo con un enfoque en UX y rendimiento.",
-    category: "Diseño Web"
-  },
-  {
-    title: "Tienda Online Artesanal",
-    description: "Plataforma e-commerce para productos artesanales con sistema de pagos y gestión de pedidos.",
-    category: "E-commerce"
-  },
-  {
-    title: "Identidad Visual Studio",
-    description: "Desarrollo de marca completo incluyendo logotipo, paleta de colores y guía de estilo.",
-    category: "Branding"
-  },
-  {
-    title: "App de Gestión de Tareas",
-    description: "Diseño de interfaz para aplicación móvil de productividad con múltiples vistas y opciones de personalización.",
-    category: "UX/UI"
-  },
-  {
-    title: "Catálogo Digital",
-    description: "Catálogo interactivo para empresa de mobiliario con visualización 3D de productos.",
-    category: "Diseño Web"
-  },
-  {
-    title: "Marketplace de Artistas",
-    description: "Plataforma para compra-venta de obras de arte con perfiles de artista y sistema de subastas.",
-    category: "E-commerce"
-  }
-];
 
 export default Portfolio;

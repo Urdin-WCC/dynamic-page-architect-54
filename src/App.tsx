@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Index from '@/pages/Index';
 import Home from '@/pages/Home';
 import Blog from '@/pages/Blog';
@@ -20,6 +20,24 @@ import Register from '@/pages/admin/Register';
 import NotFound from '@/pages/NotFound';
 import BlogEditor from '@/pages/admin/BlogEditor';
 import PortfolioEditor from '@/pages/admin/PortfolioEditor';
+import { useAuth } from '@/contexts/AuthContext';
+
+// Protected Route component to check authentication
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated, loading } = useAuth();
+  
+  // While auth is being checked, show nothing or loading
+  if (loading) {
+    return <div className="flex h-screen justify-center items-center">Cargando...</div>;
+  }
+  
+  // Redirect to login if not authenticated
+  if (!isAuthenticated) {
+    return <Navigate to="/admin/login" replace />;
+  }
+  
+  return <>{children}</>;
+};
 
 function App() {
   return (
@@ -38,7 +56,11 @@ function App() {
       <Route path="/admin/register" element={<Register />} />
       
       {/* Admin Routes */}
-      <Route path="/admin" element={<AdminLayout />}>
+      <Route path="/admin" element={
+        <ProtectedRoute>
+          <AdminLayout />
+        </ProtectedRoute>
+      }>
         <Route index element={<Dashboard />} />
         <Route path="blog" element={<BlogManager />} />
         <Route path="blog/new" element={<BlogEditor />} />
