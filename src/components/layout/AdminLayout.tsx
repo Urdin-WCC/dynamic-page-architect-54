@@ -3,9 +3,31 @@ import { useState, useEffect } from 'react';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { BookText, LayoutDashboard, LogOut, PanelLeft, Palette, Settings, Shield, Image } from 'lucide-react';
+import { 
+  BookText, 
+  LayoutDashboard, 
+  LogOut, 
+  PanelLeft, 
+  Palette, 
+  Settings, 
+  Shield, 
+  Image, 
+  Users, 
+  Home, 
+  Header, 
+  Footer, 
+  Sidebar, 
+  FileImage,
+  Info
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { 
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 const AdminLayout = () => {
   const { isAuthenticated, user, logout, hasPermission, loading } = useAuth();
@@ -13,13 +35,28 @@ const AdminLayout = () => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { toast } = useToast();
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
+    content: false,
+    theme: false,
+    security: false
+  });
 
   useEffect(() => {
     // Redirigir si no está autenticado
     if (!loading && !isAuthenticated) {
       navigate('/admin/login');
     }
-  }, [isAuthenticated, navigate, loading]);
+
+    // Abrir automáticamente el grupo correspondiente a la ruta actual
+    const path = location.pathname;
+    if (path.includes('/admin/content')) {
+      setOpenGroups(prev => ({ ...prev, content: true }));
+    } else if (path.includes('/admin/theme')) {
+      setOpenGroups(prev => ({ ...prev, theme: true }));
+    } else if (path.includes('/admin/security')) {
+      setOpenGroups(prev => ({ ...prev, security: true }));
+    }
+  }, [isAuthenticated, navigate, loading, location.pathname]);
 
   // Mientras verifica la autenticación, mostrar un indicador de carga
   if (loading) {
@@ -44,7 +81,21 @@ const AdminLayout = () => {
     navigate('/admin/login');
   };
 
-  const navItems = [
+  const toggleGroup = (group: string) => {
+    setOpenGroups(prev => ({
+      ...prev,
+      [group]: !prev[group]
+    }));
+  };
+
+  const isActive = (path: string, exact = false) => {
+    if (exact) {
+      return location.pathname === path;
+    }
+    return location.pathname === path || location.pathname.startsWith(`${path}/`);
+  };
+
+  const mainNavItems = [
     { 
       name: 'Dashboard', 
       href: '/admin', 
@@ -63,33 +114,83 @@ const AdminLayout = () => {
       href: '/admin/portfolio', 
       icon: <Image size={20} />,
       roles: ['master', 'admin', 'editor', 'writer'] as UserRole[]
-    },
+    }
+  ];
+
+  const contentItems = [
     { 
-      name: 'Contenido', 
+      name: 'General', 
       href: '/admin/content', 
-      icon: <PanelLeft size={20} />,
+      icon: <PanelLeft size={18} />,
       roles: ['master', 'admin', 'editor'] as UserRole[]
     },
     { 
-      name: 'Tema y Ajustes', 
+      name: 'Página de Inicio', 
+      href: '/admin/content/home', 
+      icon: <Home size={18} />,
+      roles: ['master', 'admin', 'editor'] as UserRole[]
+    },
+    { 
+      name: 'Servicios', 
+      href: '/admin/content/services', 
+      icon: <Settings size={18} />,
+      roles: ['master', 'admin', 'editor'] as UserRole[]
+    },
+    { 
+      name: 'Sobre Nosotros', 
+      href: '/admin/content/about', 
+      icon: <Info size={18} />,
+      roles: ['master', 'admin', 'editor'] as UserRole[]
+    },
+    { 
+      name: 'Cabecera', 
+      href: '/admin/content/header', 
+      icon: <Header size={18} />,
+      roles: ['master', 'admin', 'editor'] as UserRole[]
+    },
+    { 
+      name: 'Barra Lateral', 
+      href: '/admin/content/sidebar', 
+      icon: <Sidebar size={18} />,
+      roles: ['master', 'admin', 'editor'] as UserRole[]
+    },
+    { 
+      name: 'Pie de Página', 
+      href: '/admin/content/footer', 
+      icon: <Footer size={18} />,
+      roles: ['master', 'admin', 'editor'] as UserRole[]
+    }
+  ];
+
+  const themeItems = [
+    { 
+      name: 'Ajustes de Tema', 
       href: '/admin/theme', 
-      icon: <Palette size={20} />,
+      icon: <Palette size={18} />,
       roles: ['master', 'admin'] as UserRole[]
     },
     { 
-      name: 'Seguridad', 
-      href: '/admin/security', 
-      icon: <Shield size={20} />,
+      name: 'Logo y Favicon', 
+      href: '/admin/theme/logo', 
+      icon: <FileImage size={18} />,
       roles: ['master', 'admin'] as UserRole[]
     }
   ];
 
-  const isActive = (path: string, exact = false) => {
-    if (exact) {
-      return location.pathname === path;
+  const securityItems = [
+    { 
+      name: 'Seguridad', 
+      href: '/admin/security', 
+      icon: <Shield size={18} />,
+      roles: ['master', 'admin'] as UserRole[]
+    },
+    { 
+      name: 'Gestión de Usuarios', 
+      href: '/admin/security/users', 
+      icon: <Users size={18} />,
+      roles: ['master', 'admin'] as UserRole[]
     }
-    return location.pathname === path || location.pathname.startsWith(`${path}/`);
-  };
+  ];
 
   return (
     <div className="min-h-screen bg-secondary/20">
@@ -123,7 +224,8 @@ const AdminLayout = () => {
         )}>
           <nav className="p-2">
             <ul className="space-y-1">
-              {navItems.map((item) => 
+              {/* Main Navigation Items */}
+              {mainNavItems.map((item) => 
                 hasPermission(item.roles) && (
                   <li key={item.href}>
                     <Link
@@ -140,6 +242,147 @@ const AdminLayout = () => {
                     </Link>
                   </li>
                 )
+              )}
+
+              {/* Content Management */}
+              {hasPermission(['master', 'admin', 'editor'] as UserRole[]) && (
+                <li>
+                  <Collapsible 
+                    open={openGroups.content} 
+                    onOpenChange={() => toggleGroup('content')}
+                    className="w-full"
+                  >
+                    <CollapsibleTrigger className={cn(
+                      "flex items-center justify-between w-full px-3 py-2 rounded-md text-sm transition-colors",
+                      isActive('/admin/content') 
+                        ? "bg-primary/10 text-primary" 
+                        : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    )}>
+                      <div className="flex items-center gap-3">
+                        <PanelLeft size={20} />
+                        {sidebarOpen && <span>Gestión de Contenido</span>}
+                      </div>
+                      {sidebarOpen && (
+                        openGroups.content ? <ChevronUp size={16} /> : <ChevronDown size={16} />
+                      )}
+                    </CollapsibleTrigger>
+                    {sidebarOpen && (
+                      <CollapsibleContent className="pl-3 space-y-1 mt-1">
+                        {contentItems.map((item) => 
+                          hasPermission(item.roles) && (
+                            <Link
+                              key={item.href}
+                              to={item.href}
+                              className={cn(
+                                "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
+                                isActive(item.href, item.href === '/admin/content') 
+                                  ? "bg-primary text-primary-foreground" 
+                                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                              )}
+                            >
+                              {item.icon}
+                              <span>{item.name}</span>
+                            </Link>
+                          )
+                        )}
+                      </CollapsibleContent>
+                    )}
+                  </Collapsible>
+                </li>
+              )}
+
+              {/* Theme Management */}
+              {hasPermission(['master', 'admin'] as UserRole[]) && (
+                <li>
+                  <Collapsible 
+                    open={openGroups.theme} 
+                    onOpenChange={() => toggleGroup('theme')}
+                    className="w-full"
+                  >
+                    <CollapsibleTrigger className={cn(
+                      "flex items-center justify-between w-full px-3 py-2 rounded-md text-sm transition-colors",
+                      isActive('/admin/theme') 
+                        ? "bg-primary/10 text-primary" 
+                        : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    )}>
+                      <div className="flex items-center gap-3">
+                        <Palette size={20} />
+                        {sidebarOpen && <span>Tema y Diseño</span>}
+                      </div>
+                      {sidebarOpen && (
+                        openGroups.theme ? <ChevronUp size={16} /> : <ChevronDown size={16} />
+                      )}
+                    </CollapsibleTrigger>
+                    {sidebarOpen && (
+                      <CollapsibleContent className="pl-3 space-y-1 mt-1">
+                        {themeItems.map((item) => 
+                          hasPermission(item.roles) && (
+                            <Link
+                              key={item.href}
+                              to={item.href}
+                              className={cn(
+                                "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
+                                isActive(item.href, item.href === '/admin/theme') 
+                                  ? "bg-primary text-primary-foreground" 
+                                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                              )}
+                            >
+                              {item.icon}
+                              <span>{item.name}</span>
+                            </Link>
+                          )
+                        )}
+                      </CollapsibleContent>
+                    )}
+                  </Collapsible>
+                </li>
+              )}
+
+              {/* Security Management */}
+              {hasPermission(['master', 'admin'] as UserRole[]) && (
+                <li>
+                  <Collapsible 
+                    open={openGroups.security} 
+                    onOpenChange={() => toggleGroup('security')}
+                    className="w-full"
+                  >
+                    <CollapsibleTrigger className={cn(
+                      "flex items-center justify-between w-full px-3 py-2 rounded-md text-sm transition-colors",
+                      isActive('/admin/security') 
+                        ? "bg-primary/10 text-primary" 
+                        : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    )}>
+                      <div className="flex items-center gap-3">
+                        <Shield size={20} />
+                        {sidebarOpen && <span>Seguridad</span>}
+                      </div>
+                      {sidebarOpen && (
+                        openGroups.security ? <ChevronUp size={16} /> : <ChevronDown size={16} />
+                      )}
+                    </CollapsibleTrigger>
+                    {sidebarOpen && (
+                      <CollapsibleContent className="pl-3 space-y-1 mt-1">
+                        {securityItems.map((item) => 
+                          hasPermission(item.roles) && (
+                            <Link
+                              key={item.href}
+                              to={item.href}
+                              className={cn(
+                                "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
+                                isActive(item.href, item.href === '/admin/security') 
+                                  ? "bg-primary text-primary-foreground" 
+                                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                              )}
+                            >
+                              {item.icon}
+                              <span>{item.name}</span>
+                            </Link>
+                          )
+                        )}
+                      </CollapsibleContent>
+                    )}
+                  </Collapsible>
+                </li>
               )}
             </ul>
           </nav>

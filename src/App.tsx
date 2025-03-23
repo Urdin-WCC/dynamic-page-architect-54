@@ -21,6 +21,14 @@ import NotFound from '@/pages/NotFound';
 import BlogEditor from '@/pages/admin/BlogEditor';
 import PortfolioEditor from '@/pages/admin/PortfolioEditor';
 import { useAuth } from '@/contexts/AuthContext';
+import HeaderEditor from '@/pages/admin/HeaderEditor';
+import FooterEditor from '@/pages/admin/FooterEditor';
+import HomeEditor from '@/pages/admin/HomeEditor';
+import SidebarEditor from '@/pages/admin/SidebarEditor';
+import ServiceEditor from '@/pages/admin/ServiceEditor';
+import AboutEditor from '@/pages/admin/AboutEditor';
+import UserManager from '@/pages/admin/UserManager';
+import LogoSettings from '@/pages/admin/LogoSettings';
 
 // Protected Route component to check authentication
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -43,7 +51,7 @@ function App() {
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/" element={<Index />} />
+      <Route path="/" element={<Navigate to="/home" replace />} />
       <Route path="/home" element={<Home />} />
       <Route path="/blog" element={<Blog />} />
       <Route path="/portfolio" element={<Portfolio />} />
@@ -69,8 +77,16 @@ function App() {
         <Route path="portfolio/new" element={<PortfolioEditor />} />
         <Route path="portfolio/edit/:id" element={<PortfolioEditor />} />
         <Route path="content" element={<ContentManager />} />
+        <Route path="content/header" element={<HeaderEditor />} />
+        <Route path="content/footer" element={<FooterEditor />} />
+        <Route path="content/home" element={<HomeEditor />} />
+        <Route path="content/sidebar" element={<SidebarEditor />} />
+        <Route path="content/services" element={<ServiceEditor />} />
+        <Route path="content/about" element={<AboutEditor />} />
         <Route path="theme" element={<ThemeSettings />} />
+        <Route path="theme/logo" element={<LogoSettings />} />
         <Route path="security" element={<SecuritySettings />} />
+        <Route path="security/users" element={<UserManager />} />
       </Route>
       
       <Route path="*" element={<NotFound />} />
