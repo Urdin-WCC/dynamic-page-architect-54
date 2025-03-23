@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth, UserRole } from '@/contexts/AuthContext';
@@ -14,9 +13,9 @@ import {
   Image, 
   Users, 
   Home, 
-  Header, 
-  Footer, 
-  Sidebar, 
+  SquareMenu,
+  Menu,
+  ArrowDown,
   FileImage,
   Info
 } from 'lucide-react';
@@ -145,19 +144,19 @@ const AdminLayout = () => {
     { 
       name: 'Cabecera', 
       href: '/admin/content/header', 
-      icon: <Header size={18} />,
+      icon: <SquareMenu size={18} />,
       roles: ['master', 'admin', 'editor'] as UserRole[]
     },
     { 
       name: 'Barra Lateral', 
       href: '/admin/content/sidebar', 
-      icon: <Sidebar size={18} />,
+      icon: <Menu size={18} />,
       roles: ['master', 'admin', 'editor'] as UserRole[]
     },
     { 
       name: 'Pie de Página', 
       href: '/admin/content/footer', 
-      icon: <Footer size={18} />,
+      icon: <ArrowDown size={18} />,
       roles: ['master', 'admin', 'editor'] as UserRole[]
     }
   ];
